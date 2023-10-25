@@ -6,7 +6,9 @@
 
 # Theory Behind it :
 
-- To better understand how this attack work , please navigate to : 
+- To better understand how this attack work , please navigate to : https://surya-dev-singh.github.io/posts/Cache-Smuggling-Attack/
+![](https://raw.githubusercontent.com/surya-dev-singh/BrowserCacheSmuggling/main/Firefox%20Cache%20Smuggling.png)
+
 # How to Execute it ?
 
 ## **Step 1 :** 
