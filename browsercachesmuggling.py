@@ -114,6 +114,7 @@ if __name__ == '__main__':
 ║  ├─┤│  ├─┤├┤   └─┐││││ ││ ┬│ ┬│  │││││ ┬
 ╚═╝┴ ┴└─┘┴ ┴└─┘  └─┘┴ ┴└─┘└─┘└─┘┴─┘┴┘└┘└─┘
                                 @suryadevsingh
+                                @kryolite_secure
 '''
     print(banner)
     input_file = process_arguments()
