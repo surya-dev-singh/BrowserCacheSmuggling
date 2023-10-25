@@ -20,7 +20,7 @@ def start_nginx_service_safely():
 
     try:
         # Run the command using subprocess & create Acess log file
-        subprocess.run(["touch","/tmp/access.log"], check=True)
+        subprocess.run(["touch","./webserver/tmp/access.log"], check=True)
         subprocess.run(["service", "nginx", "start"], check=True)
         cprint("[+] Nginx service started successfully.","green")
     except subprocess.CalledProcessError as e:
@@ -65,7 +65,7 @@ def deployment(dll_path):
         while True:
             cprint("[+] Serving the logs....","green")
             cprint("[*] Press CTRL+C to stop the server")
-            subprocess.run(["tail","-n","1","-f","/tmp/access.log"],check=True)
+            subprocess.run(["tail","-n","1","-f","./webserver/tmp/access.log"],check=True)
     except KeyboardInterrupt:
             cprint("[+] CTRL+c Detected, Stopping nginx service ....","yellow")
             subprocess.run(["service", "nginx", "stop"], check=True)
@@ -78,7 +78,7 @@ def deployment(dll_path):
 def clean_up(dll_file_name):
     try:
         os.remove(f"/var/www/html/{dll_file_name}")
-        os.remove(f"/tmp/access.log")
+        os.remove(f"./webserver//tmp/access.log")
         if os.path.exists("/etc/nginx/sites-available/default.bak"):
             #clean up of nginx config files
             cprint("[+] Cleaning up the artifacts...","green",end="")
